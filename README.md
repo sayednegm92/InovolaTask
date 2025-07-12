@@ -1,5 +1,5 @@
 # First Step:
-## -Run Database File in Sql server 
+## - Create Database with Name (InovolaDB) and Run Database File in Project in Sql server 
 # Second Step:
 ## - Run the project in visiual stdio and change the connection string
 # Packages
