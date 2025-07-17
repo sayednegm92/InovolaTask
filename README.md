@@ -2,6 +2,7 @@
 ## - Create Database with Name (InovolaDB) and Run Database File in Project in Sql server 
 # Second Step:
 ## - Run the project in visiual stdio and change the connection string
+## - GetCityWather Method Like FindCity Method
 # Packages
 ## -microsoft.aspnetcore.authentication.jwtbearer
 ## -microsoft.entityframeworkcore 
