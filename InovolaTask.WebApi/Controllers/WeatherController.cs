@@ -1,14 +1,14 @@
 using InovolaTask.Application.Dto;
 using InovolaTask.Application.Services.WeatherServices;
 
-//using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InovolaTask.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    [Authorize]
     public class WeatherController : ControllerBase
     {
         #region Fields
