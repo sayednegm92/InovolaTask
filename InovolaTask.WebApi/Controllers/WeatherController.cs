@@ -1,14 +1,14 @@
 using InovolaTask.Application.Dto;
 using InovolaTask.Application.Services.WeatherServices;
 
-using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InovolaTask.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class WeatherController : ControllerBase
     {
         #region Fields
@@ -22,9 +22,9 @@ namespace InovolaTask.WebApi.Controllers
         #endregion
         #region Actions
         [HttpGet("GetCity")]
-        public IActionResult GetCityWather([FromQuery] string cityName)
+        public async Task<IActionResult> GetCityWather(string cityName)
         {
-            var result = _service.GetCityWather(cityName);
+            var result = await _service.GetCityWather(cityName);
             return Ok(result);
         }
         [HttpGet("FindCity")]

@@ -14,6 +14,7 @@ public class WeatherService : IWeatherService
     private ILogger<WeatherService> _logger;
     private readonly IMemoryCache _memoryCache;
     private const string CityCacheKey = "city_list";
+    private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
     public WeatherService(IRepositoryApp<City> cityRepo, IResponseHandler responseHandler, IMemoryCache memoryCache, ILogger<WeatherService> logger)
     {
         _cityRepo = cityRepo;
@@ -21,7 +22,7 @@ public class WeatherService : IWeatherService
         _memoryCache = memoryCache;
         _logger = logger;
     }
-    public GeneralResponse GetCityWather(string cityName)
+    public async Task<GeneralResponse> GetCityWather(string cityName)
     {
 
         // Check if the cities are cached
@@ -31,17 +32,34 @@ public class WeatherService : IWeatherService
         }
         else
         {
-            _logger.LogInformation("Cities not found in cache, fetching from Database.");
+            try
+            {
+                await semaphore.WaitAsync();
+                if (_memoryCache.TryGetValue(CityCacheKey, out cachedCities))
+                {
+                    _logger.LogInformation("Cities retrieved from cache.");
+                }
+                else
+                {
+                    _logger.LogInformation("Cities not found in cache, fetching from Database.");
 
-            cachedCities = _cityRepo.Seach(c => c.Name, cityName);
-            if (cachedCities.Count() == 0)
-                return _responseHandler.ShowMessage("City not found");
+                    cachedCities = _cityRepo.Seach(c => c.Name, cityName);
+                    if (cachedCities.Count() == 0)
+                        return _responseHandler.ShowMessage("City not found");
 
-            var cacheOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromSeconds(60)) // Cache will expire after 60 minutes of inactivity
-               .SetAbsoluteExpiration(TimeSpan.FromHours(1)) // Cache will expire after 1 hour regardless of activity
-               .SetPriority(CacheItemPriority.Normal); // Keep this item in memory longer
-            _memoryCache.Set(CityCacheKey, cachedCities, cacheOptions);
+                    var cacheOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(60)) // Cache will expire after 60 Seconds of inactivity
+                       .SetAbsoluteExpiration(TimeSpan.FromHours(1)) // Cache will expire after 1 hour regardless of activity
+                       .SetPriority(CacheItemPriority.Normal); // Keep this item in memory longer
+                    _memoryCache.Set(CityCacheKey, cachedCities, cacheOptions);
+                }
+
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+
         }
 
         return _responseHandler.Success(cachedCities);
@@ -85,7 +103,7 @@ public class WeatherService : IWeatherService
                 return _responseHandler.ShowMessage("No cities found");
 
             var cacheOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromSeconds(60)) // Cache will expire after 60 minutes of inactivity
+                .SetSlidingExpiration(TimeSpan.FromSeconds(60)) // Cache will expire after 60 Seconds of inactivity
                .SetAbsoluteExpiration(TimeSpan.FromHours(1)) // Cache will expire after 1 hour regardless of activity
                .SetPriority(CacheItemPriority.Normal); // Keep this item in memory longer
             _memoryCache.Set(CityCacheKey, cachedCities, cacheOptions);

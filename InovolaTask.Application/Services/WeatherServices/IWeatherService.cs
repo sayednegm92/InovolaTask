@@ -5,7 +5,7 @@ namespace InovolaTask.Application.Services.WeatherServices;
 
 public interface IWeatherService
 {
-    GeneralResponse GetCityWather(string cityName);
+    Task<GeneralResponse> GetCityWather(string cityName);
     Task<GeneralResponse> GetAllCities();
     Task<GeneralResponse> FindCity(string cityName);
     Task<GeneralResponse> AddCityAsync(CityDto city);
