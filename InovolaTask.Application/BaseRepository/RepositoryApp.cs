@@ -30,9 +30,25 @@ public class RepositoryApp<T> : IRepositoryApp<T> where T : class
 
         return entity;
     }
+    public virtual async Task<T> UpdateAsync(T entity)
+    {
+        Entity.Update(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+    public virtual async Task DeleteAsync(T entity)
+    {
+        Entity.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
     {
         return await Entity.AnyAsync(predicate);
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await Entity.ToListAsync();
     }
     public virtual IEnumerable<T> Seach(Func<T, string> propertySelector, string searchTerm)
     {
